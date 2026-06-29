@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import ScrollAnimate from '../../components/ScrollAnimate.astro';
+
+export async function getStaticPaths() {
+  const lists = await getCollection('lists');
+  return lists.map(list => ({
+    params: { slug: list.slug },
+    props: { list }
+  }));
+}
+
+const { list } = Astro.props;
+const { Content } = await list.render();
+---
+<Layout title={list.data.title}>
+  <article class="curated-list">
+    <header class="list-main-header">
+      <h1>{list.data.title}</h1>
+      <p class="editorial-desc">{list.data.description}</p>
+      <small>Published: {list.data.datePublished}</small>
+    </header>
+    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;" />
+    
+    <ScrollAnimate>
+      <div class="article-body">
+        <Content />
+      </div>
+    </ScrollAnimate>
+  </article>
+</Layout>
+
+<style>
+  .list-main-header { margin-bottom: 2rem; }
+  .editorial-desc { font-size: 1.25rem; font-style: italic; color: #444; }
+  .article-body :global(h2) { margin-top: 2.5rem; border-left: 4px solid var(--accent-color); padding-left: 1rem; }
+  .article-body :global(p) { margin-bottom: 1.5rem; text-align: justify; }
+</style>

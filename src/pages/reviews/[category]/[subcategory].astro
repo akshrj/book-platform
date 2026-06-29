@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import ScrollAnimate from '../../../components/ScrollAnimate.astro';
+
+export async function getStaticPaths() {
+  const allReviews = await getCollection('reviews');
+  const routesMap = new Map();
+
+  allReviews.forEach(review => {
+    const urlCategory = review.data.category.toLowerCase().replace(/\s+/g, '-');
+    const urlSubcategory = review.data.subcategory.toLowerCase().replace(/\s+/g, '-');
+    const routeKey = `${urlCategory}/${urlSubcategory}`;
+
+    if (!routesMap.has(routeKey)) {
+      routesMap.set(routeKey, {
+        categoryParam: urlCategory,
+        subcategoryParam: urlSubcategory,
+        rawCategory: review.data.category,
+        rawSubcategory: review.data.subcategory,
+        associatedReviews: []
+      });
+    }
+    routesMap.get(routeKey).associatedReviews.push(review);
+  });
+
+  return Array.from(routesMap.values()).map(route => ({
+    params: { category: route.categoryParam, subcategory: route.subcategoryParam },
+    props: { 
+      categoryName: route.rawCategory, 
+      subcategoryName: route.rawSubcategory, 
+      reviews: route.associatedReviews 
+    }
+  }));
+}
+
+const { categoryName, subcategoryName, reviews } = Astro.props;
+---
+<Layout title={`${subcategoryName} - ${categoryName}`}>
+  <h1 style="text-transform: capitalize;">{categoryName} &rarr; {subcategoryName}</h1>
+  <p style="margin-bottom: 3rem; color: #666;">Index of analyzed titles matching this matrix sector.</p>
+  
+  <div class="reviews-stack">
+    {reviews.map(async (review) => {
+      const { Content } = await review.render();
+      return (
+        <ScrollAnimate>
+          <article class="review-card">
+            <header class="review-header">
+              <h2>{review.data.title}</h2>
+              <p class="meta">By {review.data.author} | Score: {review.data.rating}/5</p>
+              {review.data.paperbackFormat && <span class="format-tag">{review.data.paperbackFormat}</span>}
+            </header>
+            <div class="markdown-body">
+              <Content />
+            </div>
+          </article>
+        </ScrollAnimate>
+      );
+    })}
+  </div>
+</Layout>
+
+<style>
+  .review-card {
+    background: #ffffff;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+  }
+  .review-header { margin-bottom: 1.5rem; }
+  .meta { font-style: italic; color: #555; }
+  .format-tag {
+    display: inline-block;
+    background: #f0ede6;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+  .markdown-body { margin-top: 1rem; }
+</style>

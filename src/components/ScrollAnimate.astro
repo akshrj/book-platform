@@ -1,0 +1,48 @@
+---
+---
+<div class="two-way-scroll">
+  <slot />
+</div>
+
+<style>
+  .two-way-scroll {
+    opacity: 0;
+    transform: translateY(50px) scale(0.96);
+    /* Custom cubic-bezier creates the physical spring/bounce dynamic */
+    transition: 
+      opacity 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+      transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform, opacity;
+    margin-bottom: 3rem;
+  }
+
+  /* Active visible layout state */
+  .two-way-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+</style>
+
+<script>
+  const scrollEngine = () => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        } else {
+          // Removing the class enables the fade-out/bounce-down effect when scrolling backward
+          entry.target.classList.remove('animate-in');
+        }
+      });
+    }, {
+      threshold: 0.15, // Triggers when 15% of component enters viewport
+      rootMargin: "0px 0px -50px 0px" // Offsets trigger for better scrolling visibility
+    });
+
+    document.querySelectorAll('.two-way-scroll').forEach((el) => observer.observe(el));
+  };
+
+  // Ensures scripts function during initial load and page changes
+  scrollEngine();
+  document.addEventListener('astro:page-load', scrollEngine);
+</script>
