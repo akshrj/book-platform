@@ -1,18 +1,21 @@
 ---
-import { getCollection } from 'astro:content';
+// Notice the new 'render' import required in V6
+import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import ScrollAnimate from '../../components/ScrollAnimate.astro';
 
 export async function getStaticPaths() {
   const lists = await getCollection('lists');
   return lists.map(list => ({
-    params: { slug: list.slug },
+    // V6 uses list.id instead of list.slug
+    params: { slug: list.id }, 
     props: { list }
   }));
 }
 
 const { list } = Astro.props;
-const { Content } = await list.render();
+// V6 syntax for rendering markdown
+const { Content } = await render(list);
 ---
 <Layout title={list.data.title}>
   <article class="curated-list">

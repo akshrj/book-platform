@@ -1,5 +1,6 @@
 ---
-import { getCollection } from 'astro:content';
+// Import the new render function here as well
+import { getCollection, render } from 'astro:content';
 import Layout from '../../../layouts/Layout.astro';
 import ScrollAnimate from '../../../components/ScrollAnimate.astro';
 
@@ -42,7 +43,8 @@ const { categoryName, subcategoryName, reviews } = Astro.props;
   
   <div class="reviews-stack">
     {reviews.map(async (review) => {
-      const { Content } = await review.render();
+      // V6 syntax for rendering markdown inside a loop
+      const { Content } = await render(review);
       return (
         <ScrollAnimate>
           <article class="review-card">
@@ -67,6 +69,7 @@ const { categoryName, subcategoryName, reviews } = Astro.props;
     padding: 2rem;
     border: 1px solid var(--border-color);
     border-radius: 4px;
+    margin-bottom: 2rem;
   }
   .review-header { margin-bottom: 1.5rem; }
   .meta { font-style: italic; color: #555; }
