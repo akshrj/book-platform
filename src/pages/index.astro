@@ -1,13 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 const allReviews = await getCollection('reviews');
 const allLists = await getCollection('lists');
 
-// Extract unique routing paths for your review matrix
+// Fetch the homepage text you just created
+const homepageData = await getEntry('settings', 'homepage');
+const { siteTitle, siteSubtitle } = homepageData.data;
+
 const reviewRoutes: { url: string; label: string }[] = [];
-const tracker = new Set();
+const tracker = new Set<string>();
 
 allReviews.forEach(review => {
   const catUrl = review.data.category.toLowerCase().replace(/\s+/g, '-');

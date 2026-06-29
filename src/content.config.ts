@@ -2,7 +2,6 @@ import { z, defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 
 const reviewsCollection = defineCollection({
-  // The 'loader' replaces the legacy 'type: content' declaration
   loader: glob({ pattern: "**/*.md", base: "./src/content/reviews" }),
   schema: z.object({
     title: z.string(),
@@ -23,7 +22,17 @@ const listsCollection = defineCollection({
   }),
 });
 
+// The new configuration for your homepage data
+const settingsCollection = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/settings" }),
+  schema: z.object({
+    siteTitle: z.string(),
+    siteSubtitle: z.string(),
+  }),
+});
+
 export const collections = {
   reviews: reviewsCollection,
   lists: listsCollection,
+  settings: settingsCollection,
 };
