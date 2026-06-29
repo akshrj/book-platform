@@ -1,17 +1,117 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
 
+const allReviews = await getCollection('reviews');
+const allLists = await getCollection('lists');
+
+// Extract unique routing paths for your review matrix
+const reviewRoutes: { url: string; label: string }[] = [];
+const tracker = new Set();
+
+allReviews.forEach(review => {
+  const catUrl = review.data.category.toLowerCase().replace(/\s+/g, '-');
+  const subcatUrl = review.data.subcategory.toLowerCase().replace(/\s+/g, '-');
+  const url = `/reviews/${catUrl}/${subcatUrl}`;
+
+  if (!tracker.has(url)) {
+    tracker.add(url);
+    reviewRoutes.push({
+      url: url,
+      label: `${review.data.category} → ${review.data.subcategory}`
+    });
+  }
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="The Reading Matrix">
+  <header class="dashboard-header">
+    <h1>The Reading Matrix</h1>
+    <p>A structural database of analyzed literature and vetted recommendations.</p>
+  </header>
+
+  <hr class="divider" />
+
+  <section class="dashboard-section">
+    <h2>Matrix Sectors (Analyzed Books)</h2>
+    {reviewRoutes.length === 0 ? (
+      <p class="empty-state">No analytical data found. Add markdown files to the reviews folder.</p>
+    ) : (
+      <ul class="matrix-list">
+        {reviewRoutes.map(route => (
+          <li>
+            <a href={route.url} class="nav-link">{route.label}</a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section class="dashboard-section">
+    <h2>Curated Logistics & Threat Lists</h2>
+    {allLists.length === 0 ? (
+      <p class="empty-state">No list data found. Add markdown files to the lists folder.</p>
+    ) : (
+      <ul class="matrix-list">
+        {allLists.map(list => (
+          <li>
+            <a href={`/lists/${list.id}`} class="nav-link">{list.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 2rem 0;
+  }
+
+  .dashboard-section {
+    margin-bottom: 3rem;
+  }
+
+  .matrix-list {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .matrix-list li {
+    margin-bottom: 0.75rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border-color);
+    transition: border-color 0.2s ease;
+  }
+
+  .matrix-list li:hover {
+    border-left-color: var(--accent-color);
+  }
+
+  .nav-link {
+    text-decoration: none;
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+
+  .empty-state {
+    color: #666;
+    font-style: italic;
+  }
+</style>
