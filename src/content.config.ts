@@ -1,22 +1,24 @@
 import { z, defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
 
 const reviewsCollection = defineCollection({
-  type: "content",
+  // The 'loader' replaces the legacy 'type: content' declaration
+  loader: glob({ pattern: "**/*.md", base: "./src/content/reviews" }),
   schema: z.object({
     title: z.string(),
     author: z.string(),
-    category: z.string(), // e.g., "Mystery", "Sci-Fi"
-    subcategory: z.string(), // e.g., "Honkaku", "Hard Sci-Fi"
+    category: z.string(),
+    subcategory: z.string(),
     rating: z.number().min(1).max(5),
     paperbackFormat: z.string().optional(),
   }),
 });
 
 const listsCollection = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.md", base: "./src/content/lists" }),
   schema: z.object({
-    title: z.string(), // e.g., "The Best 5 Orthodox Locked-Room Mysteries"
-    description: z.string(), // Summary of the list's core objective
+    title: z.string(),
+    description: z.string(),
     datePublished: z.string(),
   }),
 });
