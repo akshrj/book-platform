@@ -10,6 +10,7 @@ const reviewsCollection = defineCollection({
     subcategory: z.string(),
     rating: z.number().min(1).max(5),
     paperbackFormat: z.string().optional(),
+    coverImage: z.string().optional(),
   }),
 });
 

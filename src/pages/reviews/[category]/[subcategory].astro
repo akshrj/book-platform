@@ -53,6 +53,12 @@ const { categoryName, subcategoryName, reviews } = Astro.props;
               <p class="meta">By {review.data.author} | Score: {review.data.rating}/5</p>
               {review.data.paperbackFormat && <span class="format-tag">{review.data.paperbackFormat}</span>}
             </header>
+
+            {/* The new image logic block */}
+            {review.data.coverImage && (
+              <img src={review.data.coverImage} alt={`Cover for ${review.data.title}`} class="cover-image" />
+            )}
+
             <div class="markdown-body">
               <Content />
             </div>
@@ -82,4 +88,11 @@ const { categoryName, subcategoryName, reviews } = Astro.props;
     font-weight: 600;
   }
   .markdown-body { margin-top: 1rem; }
+  .cover-image {
+    max-width: 200px; /* Limits how massive the UK B-Format covers render */
+    height: auto;
+    border-radius: 4px;
+    margin: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
 </style>
